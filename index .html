@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Corte de Caja · Safari Indoor</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Barlow+Condensed:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0ece0;
+    --surface: #faf7f0;
+    --surface2: #ede8dc;
+    --border: #d4ccb8;
+    --border2: #c0b89a;
+    --text: #1c1c18;
+    --muted: #7a7060;
+    --accent: #1a3d2b;
+    --accent-light: #e8f0eb;
+    --danger: #7a1515;
+    --danger-light: #fdf0f0;
+    --success: #1a4d2e;
+    --success-light: #eef6f0;
+    --gold: #b8860b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'Barlow Condensed', sans-serif; min-height: 100vh; padding-bottom: 48px; }
+
+  /* ── HEADER ── */
+  .hdr {
+    position: relative; overflow: hidden;
+    background: #1a3d2b; padding: 22px 20px 18px;
+    border-bottom: 3px solid #b8860b;
+  }
+  .hdr::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: #b8860b;
+  }
+  .hdr-inner { display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 1; }
+  .hdr-brand { display: flex; flex-direction: column; gap: 1px; }
+  .hdr-sup { font-size: 0.6rem; font-weight: 600; letter-spacing: 3px; color: #f0d080; text-transform: uppercase; }
+  .hdr-title { font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; font-weight: 700; color: #fff; letter-spacing: 1px; }
+  .hdr-badge {
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px; padding: 7px 13px;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.68rem;
+    color: #f0d080; letter-spacing: 0.5px;
+  }
+
+  /* ── FORM ── */
+  .fw { padding: 18px 16px; display: flex; flex-direction: column; gap: 16px; }
+
+  .fc { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
+  .fc-hdr {
+    padding: 9px 16px; display: flex; align-items: center; gap: 8px;
+    border-bottom: 1px solid var(--border);
+    background: #e8f0eb;
+  }
+  .fc-dot { width: 5px; height: 5px; border-radius: 50%; background: #1a3d2b; flex-shrink: 0; }
+  .fc-lbl { font-size: 0.62rem; font-weight: 700; letter-spacing: 2px; color: #2f5c42; text-transform: uppercase; }
+  .fc-body { padding: 14px; display: flex; flex-direction: column; gap: 11px; }
+
+  .r2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 0.6rem; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); }
+  .fl {
+    font-size: 0.6rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    color: var(--muted); display: flex; align-items: center; gap: 5px; flex-wrap: wrap; margin-bottom: 1px;
+  }
+  .fl .op {
+    background: #e8f0eb; color: #1a3d2b;
+    border: 1px solid #a0c8a8; border-radius: 4px;
+    padding: 1px 6px; font-size: 0.6rem; font-weight: 700; letter-spacing: 0; font-family: 'JetBrains Mono', monospace;
+  }
+
+  input[type="number"], input[type="text"], input[type="date"], select {
+    background: var(--surface2); border: 1px solid var(--border2);
+    border-radius: 8px; padding: 10px 12px;
+    color: var(--text); font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.95rem; font-weight: 600; outline: none;
+    transition: border 0.18s, box-shadow 0.15s; width: 100%; -webkit-appearance: none;
+  }
+  input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,229,255,0.08); }
+  select option { background: #16161d; }
+
+  input.auto { background: #e8f0eb; border-color: #a0c8a8; color: #1a3d2b; font-family: 'JetBrains Mono', monospace; font-weight: 600; cursor: default; }
+  input.auto-neg { background: var(--danger-light); border-color: #d4a0a0; color: var(--danger); font-family: 'JetBrains Mono', monospace; font-weight: 600; cursor: default; }
+  input.auto-pos { background: var(--success-light); border-color: #90c8a0; color: var(--success); font-family: 'JetBrains Mono', monospace; font-weight: 600; cursor: default; }
+  input.r-neu { background: #1a3d2b; border-color: #1a3d2b; color: #f0d080; font-family: 'JetBrains Mono', monospace; font-size: 1rem; font-weight: 700; cursor: default; }
+  input.r-neg { background: var(--danger); border-color: var(--danger); color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 1rem; font-weight: 700; cursor: default; }
+  input.r-pos { background: var(--success); border-color: var(--success); color: #f0d080; font-family: 'JetBrains Mono', monospace; font-size: 1rem; font-weight: 700; cursor: default; }
+
+  .btn-gen {
+    background: #1a3d2b; color: #f0d080; border: none; border-radius: 12px; padding: 16px;
+    font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 700;
+    letter-spacing: 2px; cursor: pointer; width: 100%;
+    transition: opacity 0.15s, transform 0.12s; text-transform: uppercase;
+  }
+  .btn-gen:active { transform: scale(0.98); opacity: 0.9; }
+
+  /* ── PREVIEW ── */
+  #preview { display: none; padding: 16px; flex-direction: column; gap: 14px; }
+  #preview.show { display: flex; }
+  .plbl { font-size: 0.6rem; font-weight: 700; letter-spacing: 2.5px; color: var(--muted); text-transform: uppercase; }
+  #cwrap { border-radius: 14px; overflow: hidden; box-shadow: 0 0 60px rgba(0,229,255,0.08), 0 20px 60px rgba(0,0,0,0.6); }
+  #c { display: block; width: 100%; height: auto; }
+  .ar { display: flex; gap: 10px; }
+  .btn-back {
+    flex: 1; background: var(--surface); border: 1px solid var(--border2);
+    border-radius: 10px; padding: 13px; color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; text-align: center;
+  }
+  .btn-dl {
+    flex: 2; background: #1a3d2b; border: 1px solid #1a3d2b;
+    border-radius: 10px; padding: 13px; color: #f0d080;
+    font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; font-weight: 700;
+    cursor: pointer; text-align: center; letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-inner">
+    <div class="hdr-brand">
+      <div class="hdr-sup">Safari Indoor</div>
+      <div class="hdr-title">CORTE DE CAJA</div>
+    </div>
+    <div class="hdr-badge" id="hdr-date">—</div>
+  </div>
+</div>
+
+<div class="fw" id="form-wrap">
+
+  <!-- IDENTIFICACIÓN -->
+  <div class="fc">
+    <div class="fc-hdr"><div class="fc-dot"></div><div class="fc-lbl">Identificación</div></div>
+    <div class="fc-body">
+      <div class="r2">
+        <div class="field"><label>Fecha</label><input type="date" id="f-fecha"></div>
+        <div class="field"><label>Mes</label>
+          <select id="f-mes">
+            <option>ENERO</option><option>FEBRERO</option><option selected>MARZO</option>
+            <option>ABRIL</option><option>MAYO</option><option>JUNIO</option><option>JULIO</option>
+            <option>AGOSTO</option><option>SEPTIEMBRE</option><option>OCTUBRE</option>
+            <option>NOVIEMBRE</option><option>DICIEMBRE</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label>Autorizado</label><input type="text" id="f-autorizado" placeholder="Nombre"></div>
+    </div>
+  </div>
+
+  <!-- EFECTIVO -->
+  <div class="fc">
+    <div class="fc-hdr"><div class="fc-dot"></div><div class="fc-lbl">Efectivo</div></div>
+    <div class="fc-body">
+      <div class="field"><label>Efectivo en sistema</label><input type="number" id="f-ef-sistema" placeholder="0.00" step="0.01" inputmode="decimal" oninput="calc()"></div>
+      <div class="field">
+        <div class="fl">Sobre <span class="op">−</span> Sistema <span class="op">=</span> Diferencia efectivo</div>
+        <input id="f-dif-ef" class="auto" readonly placeholder="Auto">
+      </div>
+    </div>
+  </div>
+
+  <!-- TARJETAS -->
+  <div class="fc">
+    <div class="fc-hdr"><div class="fc-dot"></div><div class="fc-lbl">Tarjetas</div></div>
+    <div class="fc-body">
+      <div class="r2">
+        <div class="field"><label>Débito sistema</label><input type="number" id="f-debito" placeholder="0.00" step="0.01" inputmode="decimal" oninput="calc()"></div>
+        <div class="field"><label>Crédito sistema</label><input type="number" id="f-credito" placeholder="0.00" step="0.01" inputmode="decimal" oninput="calc()"></div>
+      </div>
+      <div class="field">
+        <div class="fl">Débito <span class="op">+</span> Crédito <span class="op">=</span> Total tarjetas</div>
+        <input id="f-total-tarjetas" class="auto" readonly placeholder="Auto">
+      </div>
+      <div class="field"><label>Total terminal (físico)</label><input type="number" id="f-terminal" placeholder="0.00" step="0.01" inputmode="decimal" oninput="calc()"></div>
+      <div class="field">
+        <div class="fl">Terminal <span class="op">−</span> Total tarjetas <span class="op">=</span> Diferencia tarjetas</div>
+        <input id="f-dif-tarjetas" class="auto" readonly placeholder="Auto">
+      </div>
+    </div>
+  </div>
+
+  <!-- TRANSFERENCIAS -->
+  <div class="fc">
+    <div class="fc-hdr"><div class="fc-dot"></div><div class="fc-lbl">Transferencias</div></div>
+    <div class="fc-body">
+      <div class="field"><label>Venta por transferencia</label><input type="number" id="f-transfer" placeholder="0.00" step="0.01" inputmode="decimal" oninput="calc()"></div>
+    </div>
+  </div>
+
+  <!-- SOBRE -->
+  <div class="fc">
+    <div class="fc-hdr"><div class="fc-dot"></div><div class="fc-lbl">Efectivo en sobre</div></div>
+    <div class="fc-body">
+      <div class="field"><label>Monto del sobre</label><input type="number" id="f-sobre" placeholder="0.00" step="0.01" inputmode="decimal" oninput="calc()"></div>
+    </div>
+  </div>
+
+  <!-- TOTALES -->
+  <div class="fc">
+    <div class="fc-hdr"><div class="fc-dot"></div><div class="fc-lbl">Totales generales</div></div>
+    <div class="fc-body">
+      <div class="field">
+        <div class="fl">Ef.sistema <span class="op">+</span> Tarjetas <span class="op">+</span> Transf. <span class="op">=</span> Total general sistema</div>
+        <input id="f-total-sistema" class="auto" readonly placeholder="Auto">
+      </div>
+      <div class="field">
+        <div class="fl">Sobre <span class="op">+</span> Terminal <span class="op">=</span> Total real</div>
+        <input id="f-total-real" class="auto" readonly placeholder="Auto">
+      </div>
+      <div class="field">
+        <div class="fl">Total real <span class="op">−</span> Total sistema <span class="op">=</span> Diferencia</div>
+        <input id="f-diferencia" class="auto" readonly placeholder="Auto">
+      </div>
+    </div>
+  </div>
+
+  <!-- AJUSTE -->
+  <div class="fc">
+    <div class="fc-hdr"><div class="fc-dot"></div><div class="fc-lbl">Ajuste</div></div>
+    <div class="fc-body">
+      <div class="r2">
+        <div class="field"><label>Ajuste ($)</label><input type="number" id="f-ajuste" placeholder="0.00" step="0.01" inputmode="decimal" oninput="calc()"></div>
+        <div class="field">
+          <div class="fl">Real <span class="op">+</span> Ajuste</div>
+          <input id="f-total-ajuste" class="auto" readonly placeholder="Auto">
+        </div>
+      </div>
+      <div class="field"><label>Motivo de ajuste</label><input type="text" id="f-motivo" placeholder="Ej. CAMBIO DE PRODUCTO"></div>
+    </div>
+  </div>
+
+  <!-- RESULTADO -->
+  <div class="fc">
+    <div class="fc-hdr"><div class="fc-dot" style="background:var(--gold)"></div><div class="fc-lbl" style="color:var(--gold)">Resultado final</div></div>
+    <div class="fc-body">
+      <div class="field">
+        <div class="fl">Total ajuste <span class="op">−</span> Total sistema <span class="op">=</span> Faltante / Sobrante</div>
+        <input id="f-faltante" class="r-neu" readonly placeholder="Calculando...">
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-gen" onclick="generate()">⚡ Generar imagen</button>
+</div>
+
+<!-- PREVIEW -->
+<div id="preview">
+  <div class="plbl">Imagen generada</div>
+  <div id="cwrap"><canvas id="c"></canvas></div>
+  <div class="ar">
+    <button class="btn-back" onclick="goBack()">← Editar</button>
+    <button class="btn-dl" onclick="dlImg()">⬇ Descargar PNG</button>
+  </div>
+</div>
+
+<script>
+// Init
+const today = new Date();
+document.getElementById('f-fecha').value = today.toISOString().split('T')[0];
+const MESES = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+document.getElementById('f-mes').value = MESES[today.getMonth()];
+document.getElementById('hdr-date').textContent = today.toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}).toUpperCase();
+
+const n = id => parseFloat(document.getElementById(id).value) || 0;
+const fmt = v => v.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+function setAuto(id, v) {
+  const el = document.getElementById(id);
+  el.value = fmt(v);
+  el.className = v < 0 ? 'auto-neg' : v > 0 ? 'auto-pos' : 'auto';
+}
+function setResult(id, v) {
+  const el = document.getElementById(id);
+  el.value = (v > 0 ? '+' : '') + fmt(v);
+  el.className = v < 0 ? 'r-neg' : v > 0 ? 'r-pos' : 'r-neu';
+}
+
+function calc() {
+  const efSis = n('f-ef-sistema');
+  const deb = n('f-debito'), cred = n('f-credito');
+  const term = n('f-terminal'), transf = n('f-transfer');
+  const sobre = n('f-sobre'), ajuste = n('f-ajuste');
+
+  const difEf      = sobre - efSis;
+  const totalTarj  = deb + cred;
+  const difTarj    = term - totalTarj;
+  const totalSis   = efSis + totalTarj + transf;
+  const totalReal  = sobre + term;
+  const dif        = totalReal - totalSis;
+  const totalAj    = totalReal + ajuste;
+  const faltante   = totalAj - totalSis;
+
+  setAuto('f-dif-ef', difEf);
+  setAuto('f-total-tarjetas', totalTarj);
+  setAuto('f-dif-tarjetas', difTarj);
+  setAuto('f-total-sistema', totalSis);
+  setAuto('f-total-real', totalReal);
+  setAuto('f-diferencia', dif);
+  setAuto('f-total-ajuste', totalAj);
+  setResult('f-faltante', faltante);
+}
+
+function getData() {
+  const raw = document.getElementById('f-fecha').value || today.toISOString().split('T')[0];
+  const [yy,mm,dd] = raw.split('-');
+  const efSis = n('f-ef-sistema'), term = n('f-terminal'), transf = n('f-transfer');
+  const deb = n('f-debito'), cred = n('f-credito');
+  const sobre = n('f-sobre'), ajuste = n('f-ajuste');
+  const totalTarj = deb + cred;
+  const totalSis  = efSis + totalTarj + transf;
+  const totalReal = sobre + term;
+  const dif       = totalReal - totalSis;
+  const totalAj   = totalReal + ajuste;
+  const faltante  = totalAj - totalSis;
+  return {
+    mes: document.getElementById('f-mes').value,
+    fecha: `${parseInt(dd)}/${parseInt(mm)}/${yy}`,
+    sobre: fmt(sobre),
+    sistema: fmt(totalSis),
+    real: fmt(totalReal),
+    diferencia: fmt(dif), difVal: dif,
+    ajuste: fmt(ajuste),
+    motivo: (document.getElementById('f-motivo').value.trim() || 'SIN AJUSTE').toUpperCase(),
+    totalAjuste: fmt(totalAj),
+    faltante: fmt(Math.abs(faltante)),
+    faltanteVal: faltante,
+    autorizado: (document.getElementById('f-autorizado').value.trim() || '—').toUpperCase(),
+  };
+}
+
+function generate() { calc(); const d = getData(); document.getElementById('form-wrap').style.display='none'; const p=document.getElementById('preview'); p.classList.add('show'); p.scrollIntoView({behavior:'smooth',block:'start'}); setTimeout(()=>renderCanvas(d),80); }
+function goBack() { document.getElementById('preview').classList.remove('show'); document.getElementById('form-wrap').style.display='flex'; window.scrollTo({top:0,behavior:'smooth'}); }
+
+// ════════════════════════════════════════
+// CANVAS RENDER — verde oscuro / crema / fondo papel
+// ════════════════════════════════════════
+function renderCanvas(d) {
+  const canvas = document.getElementById('c');
+
+  // ── PALETA financiera ──
+  const PAPER    = '#f5f0e8';
+  const CREAM2   = '#e0d9cc';
+  const GREEN    = '#1a3d2b';
+  const GREEN2   = '#245c3f';
+  const GREEN3   = '#2f7a55';
+  const GOLD     = '#b8860b';
+  const GOLD_LT  = '#f0d080';
+  const DANGER   = '#8b1a1a';
+  const DANGER_L = '#fdf0f0';
+  const SUCCESS  = '#1a4d2e';
+  const SUCCESS_L= '#f0f7f0';
+  const INK      = '#1c1c18';
+  const MUTED    = '#7a7060';
+
+  // ── DIMENSIONES dinámicas ──
+  const W       = 800;
+  const PAD     = 24;
+  const HDR_H   = 100;
+  const COLS    = 2, GAP = 10, CH = 78;
+  const items = [
+    { label: 'EFECTIVO EN SOBRE',     value: '$' + d.sobre,       sub: null,               type: 'n'   },
+    { label: 'TOTAL GRAL. SISTEMA',   value: '$' + d.sistema,     sub: null,               type: 'n'   },
+    { label: 'TOTAL REAL',            value: '$' + d.real,        sub: 'SOBRE + TERMINAL', type: 'n'   },
+    { label: 'DIFERENCIA',            value: (d.difVal < 0 ? '−$' : d.difVal > 0 ? '+$' : '$') + fmt(Math.abs(d.difVal)), sub: 'REAL − SISTEMA', type: d.difVal < 0 ? 'neg' : d.difVal > 0 ? 'pos' : 'n' },
+    { label: 'AJUSTE',                value: '$' + d.ajuste,      sub: d.motivo,           type: 'n'   },
+    { label: 'TOTAL +/− AJUSTE',      value: '$' + d.totalAjuste, sub: null,               type: 'n'   },
+  ];
+  const ROWS    = Math.ceil(items.length / COLS);
+  const GRID_H  = ROWS * CH + (ROWS - 1) * GAP;
+  const RES_H   = 106;
+  const FOOT_H  = 38;
+  const H       = HDR_H + 14 + GRID_H + 12 + RES_H + 12 + FOOT_H;
+
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  // ── FONDO PAPEL ──
+  ctx.fillStyle = PAPER;
+  ctx.fillRect(0, 0, W, H);
+
+  // Textura líneas tenues
+  ctx.strokeStyle = 'rgba(180,170,150,0.15)';
+  ctx.lineWidth = 0.5;
+  for (let y = 0; y < H; y += 20) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+
+  // ── HEADER VERDE ──
+  ctx.fillStyle = GREEN;
+  ctx.fillRect(0, 0, W, HDR_H);
+  ctx.fillStyle = GOLD;
+  ctx.fillRect(0, HDR_H, W, 3);
+  ctx.fillRect(0, 0, 5, H); // franja lateral
+
+  // Empresa
+  ctx.textAlign = 'left';
+  ctx.font = '600 11px "JetBrains Mono", monospace';
+  ctx.fillStyle = GOLD_LT;
+  ctx.fillText('SAFARI INDOOR', 26, 30);
+
+  // Mes
+  ctx.font = '800 52px "Barlow Condensed", sans-serif';
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText(d.mes, 24, 88);
+
+  // Fecha + label derecha
+  ctx.textAlign = 'right';
+  ctx.font = '600 11px "JetBrains Mono", monospace';
+  ctx.fillStyle = GOLD_LT;
+  ctx.fillText('CORTE DE CAJA', W - 26, 30);
+  ctx.font = '700 26px "Barlow Condensed", sans-serif';
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText(d.fecha, W - 26, 84);
+
+  // ── GRID DE TARJETAS ──
+  const startY = HDR_H + 14;
+  const CW = (W - PAD * 2 - GAP) / 2;
+
+  items.forEach((item, i) => {
+    const col = i % COLS;
+    const row = Math.floor(i / COLS);
+    const cx  = PAD + col * (CW + GAP);
+    const cy  = startY + row * (CH + GAP);
+
+    const isNeg = item.type === 'neg';
+    const isPos = item.type === 'pos';
+
+    roundRect(ctx, cx, cy, CW, CH, 7, isNeg ? DANGER_L : isPos ? SUCCESS_L : '#ffffff');
+    roundRect(ctx, cx, cy, 4, CH, [7,0,0,7], isNeg ? DANGER : isPos ? GREEN3 : GREEN2);
+    ctx.strokeStyle = isNeg ? '#d4a0a0' : isPos ? '#a0c8a0' : CREAM2;
+    ctx.lineWidth = 1;
+    roundRectStroke(ctx, cx, cy, CW, CH, 7);
+
+    ctx.textAlign = 'left';
+    ctx.font = '600 10px "JetBrains Mono", monospace';
+    ctx.fillStyle = MUTED;
+    ctx.fillText(item.label, cx + 14, cy + 22);
+
+    ctx.font = '700 24px "Barlow Condensed", sans-serif';
+    ctx.fillStyle = isNeg ? DANGER : isPos ? SUCCESS : INK;
+    ctx.fillText(item.value, cx + 14, cy + 54);
+
+    if (item.sub) {
+      ctx.font = '400 9px "JetBrains Mono", monospace';
+      ctx.fillStyle = isNeg ? '#b06060' : isPos ? '#508050' : MUTED;
+      ctx.fillText(item.sub, cx + 14, cy + 70);
+    }
+  });
+
+  // ── RESULTADO ──
+  const ry = startY + GRID_H + 12;
+  const isNeg = d.faltanteVal < 0;
+  const isPos = d.faltanteVal > 0;
+  const resBg = isNeg ? DANGER : isPos ? GREEN : GREEN2;
+
+  roundRect(ctx, PAD, ry, W - PAD*2, RES_H, 9, resBg);
+  ctx.strokeStyle = isNeg ? 'rgba(255,180,180,0.2)' : 'rgba(200,240,200,0.2)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(PAD+18, ry+40); ctx.lineTo(W-PAD-18, ry+40); ctx.stroke();
+
+  ctx.textAlign = 'left';
+  ctx.font = '600 11px "JetBrains Mono", monospace';
+  ctx.fillStyle = isNeg ? '#ffb3b3' : GOLD_LT;
+  ctx.fillText(isNeg ? 'FALTANTE' : isPos ? 'SOBRANTE' : 'CUADRE EXACTO', PAD + 20, ry + 26);
+
+  ctx.font = '800 48px "Barlow Condensed", sans-serif';
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText((isNeg ? '− $' : isPos ? '+ $' : '$') + d.faltante, PAD + 20, ry + 88);
+
+  ctx.textAlign = 'right';
+  ctx.font = '500 10px "JetBrains Mono", monospace';
+  ctx.fillStyle = isNeg ? '#ffb3b3' : GOLD_LT;
+  ctx.fillText('AUTORIZADO POR', W - PAD - 16, ry + 26);
+  ctx.font = '700 20px "Barlow Condensed", sans-serif';
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText(d.autorizado, W - PAD - 16, ry + 50);
+
+  // ── FOOTER ──
+  const fy = ry + RES_H + 10;
+  ctx.strokeStyle = GOLD; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(PAD, fy); ctx.lineTo(W-PAD, fy); ctx.stroke();
+
+  const stamp = new Date().toLocaleDateString('es-MX',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  ctx.textAlign = 'left';
+  ctx.font = '400 10px "JetBrains Mono", monospace';
+  ctx.fillStyle = MUTED;
+  ctx.fillText(stamp.charAt(0).toUpperCase() + stamp.slice(1), PAD, fy + 24);
+
+  ctx.textAlign = 'right';
+  ctx.font = '600 10px "JetBrains Mono", monospace';
+  ctx.fillStyle = GREEN2;
+  ctx.fillText('SAFARI INDOOR · CORTE DE CAJA', W - PAD, fy + 24);
+
+  ctx.textAlign = 'left';
+}
+
+// ── HELPERS ──
+function roundRect(ctx, x, y, w, h, r, fill) {
+  const [tl,tr,br,bl] = Array.isArray(r) ? r : [r,r,r,r];
+  ctx.fillStyle = fill;
+  ctx.beginPath();
+  ctx.moveTo(x+tl, y);
+  ctx.lineTo(x+w-tr, y); ctx.quadraticCurveTo(x+w, y, x+w, y+tr);
+  ctx.lineTo(x+w, y+h-br); ctx.quadraticCurveTo(x+w, y+h, x+w-br, y+h);
+  ctx.lineTo(x+bl, y+h); ctx.quadraticCurveTo(x, y+h, x, y+h-bl);
+  ctx.lineTo(x, y+tl); ctx.quadraticCurveTo(x, y, x+tl, y);
+  ctx.closePath(); ctx.fill();
+}
+function roundRectStroke(ctx, x, y, w, h, r) {
+  const [tl,tr,br,bl] = Array.isArray(r) ? r : [r,r,r,r];
+  ctx.beginPath();
+  ctx.moveTo(x+tl, y);
+  ctx.lineTo(x+w-tr, y); ctx.quadraticCurveTo(x+w, y, x+w, y+tr);
+  ctx.lineTo(x+w, y+h-br); ctx.quadraticCurveTo(x+w, y+h, x+w-br, y+h);
+  ctx.lineTo(x+bl, y+h); ctx.quadraticCurveTo(x, y+h, x, y+h-bl);
+  ctx.lineTo(x, y+tl); ctx.quadraticCurveTo(x, y, x+tl, y);
+  ctx.closePath(); ctx.stroke();
+}
+function dlImg() {
+  const a = document.createElement('a');
+  const d = getData();
+  a.download = `corte-${d.fecha.replace(/\//g,'-')}.png`;
+  a.href = document.getElementById('c').toDataURL('image/png');
+  a.click();
+}
+</script>
+</body>
+</html>
